@@ -2,6 +2,7 @@ const fs = require('fs')
 const mix = require('laravel-mix')
 const { onExit } = require('gracy')
 const map = require('deep-map-object')
+const inside = require('is-path-inside')
 const watcher = require('@parcel/watcher')
 const { getAllFilesSync } = require('get-all-files')
 const { build, prettier } = require('@mpietrucha/prettier-config/dist/builder')
@@ -14,11 +15,15 @@ class Prettier {
     }
 
     boot() {
+        this.assert()
+
         this.clean()
 
-        getAllFilesSync(this.source)
-            .toArray()
-            .forEach(file => this.run(file))
+        const bootstrap = this.run.bind(this)
+
+        this.includes().forEach(bootstrap)
+
+        getAllFilesSync(this.source).toArray().forEach(bootstrap)
 
         this.watch && watcher.subscribe(this.source, (error, events) => this.enqueue(events))
     }
@@ -65,6 +70,18 @@ class Prettier {
         fs.cpSync(filepath, destination || this.translate(filepath))
     }
 
+    includes() {
+        return this.options.includes || [this.root('package.json')]
+    }
+
+    assert() {
+        if (!inside(this.cache, this.source)) {
+            return
+        }
+
+        throw new Error('Cache directory cannot be inside source.')
+    }
+
     clean({ logLevel = 'error', ...options } = {}) {
         const handler = this.purge.bind(this, this.cache)
 
@@ -94,16 +111,20 @@ class Prettier {
         return path
     }
 
+    root(children) {
+        return Mix.paths.root(children)
+    }
+
     get watch() {
         return Mix.isWatching()
     }
 
     get source() {
-        return Mix.paths.root(this.options.source)
+        return this.root(this.options.source)
     }
 
     get cache() {
-        return Mix.paths.root(this.options.cache)
+        return this.root(this.options.cache)
     }
 }
 
