@@ -1,7 +1,7 @@
 {
     "name": "laravel-mix-prettier",
     "main": "src/index.js",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "MIT",
     "prettier": "@mpietrucha/prettier-config",
     "author": {
