@@ -1,9 +1,9 @@
 {
     "name": "laravel-mix-prettier",
     "main": "src/index.js",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "MIT",
-    "prettier": "@off-site/prettier-config",
+    "prettier": "@mpietrucha/prettier-config",
     "author": {
         "name": "Michał Pietrucha",
         "email": "michal.pietrucha@off-site.pl"
@@ -17,6 +17,6 @@
         "laravel-mix": "^6.0.0"
     },
     "devDependencies": {
-        "@off-site/prettier-config": "^1.0.0"
+        "@mpietrucha/prettier-config": "^1.0.1"
     }
 }
