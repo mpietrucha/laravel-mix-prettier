@@ -17,7 +17,7 @@
         "laravel-mix": "^6.0.0"
     },
     "dependencies": {
-        "@mpietrucha/prettier-config": "^1.0.4"
+        "@mpietrucha/prettier-config": "^1.0.5"
     },
     "devDependencies": {
         "prettier": "^3.3.3"
