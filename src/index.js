@@ -3,9 +3,8 @@ const mix = require('laravel-mix')
 const { onExit } = require('gracy')
 const map = require('deep-map-object')
 const watcher = require('@parcel/watcher')
-const prettier = require('@prettier/sync')
 const { getAllFilesSync } = require('get-all-files')
-const { build } = require('@mpietrucha/prettier-config/dist/builder')
+const { build, prettier } = require('@mpietrucha/prettier-config/dist/builder')
 
 class Prettier {
     register(options = {}) {
