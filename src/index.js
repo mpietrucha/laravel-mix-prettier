@@ -67,7 +67,7 @@ class Prettier {
 
         fs.writeFileSync(filepath, content)
 
-        fs.cpSync(filepath, destination || this.translate(filepath))
+        this.synchronize(filepath, destination)
     }
 
     includes() {
@@ -95,6 +95,16 @@ class Prettier {
             force: true,
             recursive: true,
         })
+    }
+
+    synchronize(path, destination) {
+        destination ||= this.translate(path)
+
+        if (path === destination) {
+            return
+        }
+
+        fs.cpSync(path, destination)
     }
 
     map(source) {
