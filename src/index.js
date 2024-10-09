@@ -2,7 +2,7 @@ const fs = require('fs')
 const mix = require('laravel-mix')
 const { onExit } = require('gracy')
 const map = require('deep-map-object')
-const inside = require("path-is-inside")
+const inside = require('path-is-inside')
 const watcher = require('@parcel/watcher')
 const { getAllFilesSync } = require('get-all-files')
 const { build, prettier } = require('@mpietrucha/prettier-config/dist/builder')
@@ -19,11 +19,7 @@ class Prettier {
 
         this.clean()
 
-        const bootstrap = this.run.bind(this)
-
-        this.includes().forEach(bootstrap)
-
-        getAllFilesSync(this.source).toArray().forEach(bootstrap)
+        this.initial().forEach(file => this.run(file))
 
         this.watch && watcher.subscribe(this.source, (error, events) => this.enqueue(events))
     }
@@ -36,26 +32,56 @@ class Prettier {
         config.watchOptions.ignored = [this.source, '**/node_modules']
     }
 
+    assert() {
+        if (!fs.existsSync(this.source)) {
+            throw new Error('Source directory does not exists.')
+        }
+
+        if (inside(this.cache, this.source)) {
+            throw new Error('Cache directory cannot be inside source.')
+        }
+
+        if (inside(this.source, this.cache)) {
+            throw new Error('Source directory cannot be inside cache.')
+        }
+    }
+
+    clean({ logLevel = 'error', ...options } = {}) {
+        const handler = this.purge.bind(this, this.cache)
+
+        handler()
+
+        onExit(handler, { logLevel, ...options })
+    }
+
+    initial() {
+        const includes = this.options.includes || [this.root('package.json')]
+
+        return [...includes, ...getAllFilesSync(this.source).toArray()]
+    }
+
     enqueue(events) {
-        events.forEach(({ type, path }) => {
-            const destination = this.translate(path)
+        events.forEach(this.dispatch.bind(this))
+    }
 
-            const enqueued = this.queue.indexOf(path)
+    dispatch({ type, path }) {
+        const destination = this.translate(path)
 
-            if (type === 'error') {
-                this.purge(destination)
+        const enqueued = this.queue.indexOf(path)
 
-                return
-            }
+        if (type === 'error') {
+            this.purge(destination)
 
-            if (~enqueued) {
-                this.queue.splice(enqueued, 1)
+            return
+        }
 
-                return
-            }
+        if (~enqueued) {
+            this.queue.splice(enqueued, 1)
 
-            this.queue.push(path) && this.run(path, destination)
-        })
+            return
+        }
+
+        this.queue.push(path) && this.run(path, destination)
     }
 
     run(filepath, destination) {
@@ -70,24 +96,14 @@ class Prettier {
         this.synchronize(filepath, destination)
     }
 
-    includes() {
-        return this.options.includes || [this.root('package.json')]
-    }
+    synchronize(source, destination) {
+        destination ||= this.translate(source)
 
-    assert() {
-        if (! inside(this.source, this.cache)) {
+        if (source === destination) {
             return
         }
 
-        throw new Error('Cache directory cannot be inside source.')
-    }
-
-    clean({ logLevel = 'error', ...options } = {}) {
-        const handler = this.purge.bind(this, this.cache)
-
-        handler()
-
-        onExit(handler, { logLevel, ...options })
+        fs.cpSync(source, destination)
     }
 
     purge(path) {
@@ -95,16 +111,6 @@ class Prettier {
             force: true,
             recursive: true,
         })
-    }
-
-    synchronize(path, destination) {
-        destination ||= this.translate(path)
-
-        if (path === destination) {
-            return
-        }
-
-        fs.cpSync(path, destination)
     }
 
     map(source) {
