@@ -1,6 +1,6 @@
 {
     "name": "laravel-mix-prettier",
-    "version": "1.1.4",
+    "version": "1.1.5",
     "license": "MIT",
     "author": {
         "name": "Michał Pietrucha",
@@ -9,8 +9,7 @@
     "main": "src/index.js",
     "prettier": "@mpietrucha/prettier-config",
     "dependencies": {
-        "@mpietrucha/prettier-config": "^1.1.0",
-        "install": "^0.13.0"
+        "@mpietrucha/prettier-config": "^1.1.0"
     },
     "peerDependencies": {
         "@parcel/watcher": "^2.4.1",
@@ -18,7 +17,7 @@
         "deep-map-object": "^0.0.5",
         "get-all-files": "^5.0.0",
         "gracy": "^4.1.0",
-        "is-path-inside": "^4.0.0",
-        "laravel-mix": "^6.0.0"
+        "laravel-mix": "^6.0.0",
+        "path-is-inside": "^1.0.2"
     }
 }

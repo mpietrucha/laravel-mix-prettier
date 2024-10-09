@@ -2,7 +2,7 @@ const fs = require('fs')
 const mix = require('laravel-mix')
 const { onExit } = require('gracy')
 const map = require('deep-map-object')
-const inside = require('is-path-inside')
+const inside = require("path-is-inside")
 const watcher = require('@parcel/watcher')
 const { getAllFilesSync } = require('get-all-files')
 const { build, prettier } = require('@mpietrucha/prettier-config/dist/builder')
@@ -75,7 +75,7 @@ class Prettier {
     }
 
     assert() {
-        if (!inside(this.cache, this.source)) {
+        if (! inside(this.source, this.cache)) {
             return
         }
 
